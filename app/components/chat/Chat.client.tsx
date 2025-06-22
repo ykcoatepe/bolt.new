@@ -8,6 +8,7 @@ import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from
 import { useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
+import { apiKeysStore } from '~/lib/stores/apiKeys';
 import { fileModificationsToHTML } from '~/utils/diff';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
@@ -72,11 +73,13 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
   const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
 
   const { showChat } = useStore(chatStore);
+  const { anthropic } = useStore(apiKeysStore);
 
   const [animationScope, animate] = useAnimate();
 
   const { messages, isLoading, input, handleInputChange, setInput, stop, append } = useChat({
     api: '/api/chat',
+    headers: anthropic ? { 'x-anthropic-api-key': anthropic } : undefined,
     onError: (error) => {
       logger.error('Request failed\n\n', error);
       toast.error('There was an error processing your request');

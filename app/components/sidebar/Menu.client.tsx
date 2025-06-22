@@ -5,6 +5,7 @@ import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from
 import { IconButton } from '~/components/ui/IconButton';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
 import { db, deleteById, getAll, chatId, type ChatHistoryItem } from '~/lib/persistence';
+import { ApiKeysDialog } from './ApiKeysDialog.client';
 import { cubicEasingFn } from '~/utils/easings';
 import { logger } from '~/utils/logger';
 import { HistoryItem } from './HistoryItem';
@@ -38,6 +39,7 @@ export function Menu() {
   const [list, setList] = useState<ChatHistoryItem[]>([]);
   const [open, setOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
+  const [apiDialogOpen, setApiDialogOpen] = useState(false);
 
   const loadEntries = useCallback(() => {
     if (db) {
@@ -163,9 +165,16 @@ export function Menu() {
             </Dialog>
           </DialogRoot>
         </div>
-        <div className="flex items-center border-t border-bolt-elements-borderColor p-4">
+        <div className="flex items-center border-t border-bolt-elements-borderColor p-4 gap-2">
+          <button
+            className="text-bolt-elements-sidebar-buttonText hover:underline"
+            onClick={() => setApiDialogOpen(true)}
+          >
+            Manage API Keys
+          </button>
           <ThemeSwitch className="ml-auto" />
         </div>
+        <ApiKeysDialog open={apiDialogOpen} onClose={() => setApiDialogOpen(false)} />
       </div>
     </motion.div>
   );
