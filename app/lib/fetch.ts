@@ -1,3 +1,5 @@
+import { useApiKeysStore } from '~/lib/stores/apiKeys';
+
 type CommonRequest = Omit<RequestInit, 'body'> & { body?: URLSearchParams };
 
 export async function request(url: string, init?: CommonRequest) {
@@ -11,4 +13,23 @@ export async function request(url: string, init?: CommonRequest) {
   }
 
   return fetch(url, init);
+}
+
+export async function fetchWithApiKeys(url: string, init?: CommonRequest) {
+  const { openai, google, anthropic } = useApiKeysStore.getState();
+  const headers = new Headers(init?.headers);
+
+  if (openai) {
+    headers.set('x-openai-key', openai);
+  }
+
+  if (google) {
+    headers.set('x-google-key', google);
+  }
+
+  if (anthropic) {
+    headers.set('x-anthropic-key', anthropic);
+  }
+
+  return request(url, { ...init, headers });
 }

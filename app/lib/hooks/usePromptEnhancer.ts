@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createScopedLogger } from '~/utils/logger';
+import { fetchWithApiKeys } from '~/lib/fetch';
 
 const logger = createScopedLogger('usePromptEnhancement');
 
@@ -16,7 +17,7 @@ export function usePromptEnhancer() {
     setEnhancingPrompt(true);
     setPromptEnhanced(false);
 
-    const response = await fetch('/api/enhancer', {
+    const response = await fetchWithApiKeys('/api/enhancer', {
       method: 'POST',
       body: JSON.stringify({
         message: input,

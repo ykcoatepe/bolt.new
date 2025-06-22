@@ -1,7 +1,7 @@
-import { useStore } from '@nanostores/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
-import { apiKeysStore } from '~/lib/stores/apiKeys';
+import { useApiKeysStore } from '~/lib/stores/apiKeys';
 
 interface ApiKeysDialogProps {
   open: boolean;
@@ -9,13 +9,31 @@ interface ApiKeysDialogProps {
 }
 
 export function ApiKeysDialog({ open, onClose }: ApiKeysDialogProps) {
-  const keys = useStore(apiKeysStore);
-  const [openai, setOpenai] = useState(keys.openai || '');
-  const [google, setGoogle] = useState(keys.google || '');
-  const [anthropic, setAnthropic] = useState(keys.anthropic || '');
+  const apiKeys = useApiKeysStore();
+  const [openai, setOpenai] = useState('');
+  const [google, setGoogle] = useState('');
+  const [anthropic, setAnthropic] = useState('');
+
+  useEffect(() => {
+    if (open) {
+      apiKeys.load();
+      setOpenai(apiKeys.getKey('openai') || '');
+      setGoogle(apiKeys.getKey('google') || '');
+      setAnthropic(apiKeys.getKey('anthropic') || '');
+    }
+  }, [open]);
 
   const save = () => {
-    apiKeysStore.set({ openai, google, anthropic });
+    if (!openai.trim() || !google.trim() || !anthropic.trim()) {
+      toast.error('All keys are required');
+      return;
+    }
+
+    apiKeys.setKey('openai', openai.trim());
+    apiKeys.setKey('google', google.trim());
+    apiKeys.setKey('anthropic', anthropic.trim());
+    apiKeys.persist();
+    toast.success('Saved!');
     onClose();
   };
 
@@ -34,6 +52,7 @@ export function ApiKeysDialog({ open, onClose }: ApiKeysDialogProps) {
             <label className="flex flex-col">
               <span className="mb-1">OpenAI</span>
               <input
+                type="password"
                 value={openai}
                 onChange={(e) => setOpenai(e.target.value)}
                 className="border rounded px-2 py-1 bg-bolt-elements-background-depth-1"
@@ -42,6 +61,7 @@ export function ApiKeysDialog({ open, onClose }: ApiKeysDialogProps) {
             <label className="flex flex-col">
               <span className="mb-1">Google</span>
               <input
+                type="password"
                 value={google}
                 onChange={(e) => setGoogle(e.target.value)}
                 className="border rounded px-2 py-1 bg-bolt-elements-background-depth-1"
@@ -50,14 +70,19 @@ export function ApiKeysDialog({ open, onClose }: ApiKeysDialogProps) {
             <label className="flex flex-col">
               <span className="mb-1">Anthropic</span>
               <input
+                type="password"
                 value={anthropic}
                 onChange={(e) => setAnthropic(e.target.value)}
                 className="border rounded px-2 py-1 bg-bolt-elements-background-depth-1"
               />
             </label>
             <div className="flex justify-end gap-2 pt-2">
-              <DialogButton type="secondary" onClick={onClose}>Cancel</DialogButton>
-              <DialogButton type="primary" onClick={save}>Save</DialogButton>
+              <DialogButton type="secondary" onClick={onClose}>
+                Cancel
+              </DialogButton>
+              <DialogButton type="primary" onClick={save}>
+                Save
+              </DialogButton>
             </div>
           </form>
         </DialogDescription>
