@@ -50,5 +50,15 @@ Check out the [Issues section](https://github.com/stackblitz/bolt.new/issues) to
 **What frameworks/libraries currently work on Bolt?**  
 Bolt.new supports most popular JavaScript frameworks and libraries. If it runs on StackBlitz, it will run on Bolt.new as well.
 
-**How can I add make sure my framework/project works well in bolt?**  
+**How can I add make sure my framework/project works well in bolt?**
 We are excited to work with the JavaScript ecosystem to improve functionality in Bolt. Reach out to us via [hello@stackblitz.com](mailto:hello@stackblitz.com) to discuss how we can partner!
+
+## Configuration
+
+The server can use your own model credentials by setting these optional environment variables:
+
+- `OPENAI_API_KEY`
+- `GOOGLE_API_KEY`
+- `ANTHROPIC_API_KEY`
+
+Keys provided by users in the UI will override these values for their session.

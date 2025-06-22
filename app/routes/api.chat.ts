@@ -14,8 +14,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   const stream = new SwitchableStream();
 
   try {
-    const anthropicApiKey =
-      request.headers.get('x-anthropic-api-key') || context.cloudflare.env.ANTHROPIC_API_KEY;
+    const anthropicApiKey = request.headers.get('x-anthropic-api-key') || context.cloudflare.env.ANTHROPIC_API_KEY;
 
     const options: StreamingOptions = {
       toolChoice: 'none',

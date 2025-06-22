@@ -1,27 +1,44 @@
-import { map } from 'nanostores';
+import { create } from 'zustand';
 
-export interface ApiKeys {
+type Provider = 'openai' | 'google' | 'anthropic';
+
+interface ApiKeysState {
   openai?: string;
   google?: string;
   anthropic?: string;
+  getKey: (provider: Provider) => string | undefined;
+  setKey: (provider: Provider, key: string) => void;
+  clearKey: (provider: Provider) => void;
+  load: () => void;
+  persist: () => void;
 }
 
-const STORAGE_KEY = 'bolt_api_keys';
+const STORAGE_KEY = 'bolt.apiKeys';
 
-function loadKeys(): ApiKeys {
-  if (typeof localStorage === 'undefined') return {};
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
+export const useApiKeysStore = create<ApiKeysState>((set, get) => ({
+  getKey: (provider) => get()[provider],
+  setKey: (provider, key) => set({ [provider]: key }),
+  clearKey: (provider) => set({ [provider]: undefined }),
+  load: () => {
+    if (typeof localStorage === 'undefined') {
+      return;
     }
-  } catch {}
-  return {};
-}
 
-export const apiKeysStore = map<ApiKeys>(loadKeys());
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
 
-apiKeysStore.subscribe((value) => {
-  if (typeof localStorage === 'undefined') return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
-});
+      if (raw) {
+        set(JSON.parse(raw));
+      }
+    } catch {}
+  },
+  persist: () => {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    const { openai, google, anthropic } = get();
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ openai, google, anthropic }));
+  },
+}));

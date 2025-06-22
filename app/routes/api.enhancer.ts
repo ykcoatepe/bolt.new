@@ -14,6 +14,8 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
   const { message } = await request.json<{ message: string }>();
 
   try {
+    const anthropicApiKey = request.headers.get('x-anthropic-api-key') || context.cloudflare.env.ANTHROPIC_API_KEY;
+
     const result = await streamText(
       [
         {
@@ -30,6 +32,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
         },
       ],
       context.cloudflare.env,
+      anthropicApiKey,
     );
 
     const transformStream = new TransformStream({
