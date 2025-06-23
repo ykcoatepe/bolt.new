@@ -1,12 +1,16 @@
 import { useStore } from '@nanostores/react';
 import { ClientOnly } from 'remix-utils/client-only';
+import { useState } from 'react';
 import { chatStore } from '~/lib/stores/chat';
 import { classNames } from '~/utils/classNames';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
+import { ApiKeysDialog } from '~/components/sidebar/ApiKeysDialog.client';
+import { IconButton } from '~/components/ui/IconButton';
 
 export function Header() {
   const chat = useStore(chatStore);
+  const [apiDialogOpen, setApiDialogOpen] = useState(false);
 
   return (
     <header
@@ -36,6 +40,14 @@ export function Header() {
           )}
         </ClientOnly>
       )}
+      <ClientOnly>
+        {() => (
+          <>
+            <IconButton icon="i-ph:key-duotone" title="API Keys" onClick={() => setApiDialogOpen(true)} />
+            <ApiKeysDialog open={apiDialogOpen} onClose={() => setApiDialogOpen(false)} />
+          </>
+        )}
+      </ClientOnly>
     </header>
   );
 }
