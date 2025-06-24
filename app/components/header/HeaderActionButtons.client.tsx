@@ -1,13 +1,16 @@
 import { useStore } from '@nanostores/react';
+import { useState } from 'react';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
+import { ApiKeyDialog } from './ApiKeyDialog.client';
 
 interface HeaderActionButtonsProps {}
 
 export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const showWorkbench = useStore(workbenchStore.showWorkbench);
   const { showChat } = useStore(chatStore);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const canHideChat = showWorkbench || !showChat;
 
@@ -38,7 +41,12 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         >
           <div className="i-ph:code-bold" />
         </Button>
+        <div className="w-[1px] bg-bolt-elements-borderColor" />
+        <Button onClick={() => setDialogOpen(true)}>
+          <div className="i-ph:key" />
+        </Button>
       </div>
+      <ApiKeyDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 }
