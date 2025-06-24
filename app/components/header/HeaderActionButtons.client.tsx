@@ -1,77 +1,23 @@
-import { useStore } from '@nanostores/react';
+"use client";
+
 import { useState } from 'react';
-import { chatStore } from '~/lib/stores/chat';
-import { workbenchStore } from '~/lib/stores/workbench';
-import { classNames } from '~/utils/classNames';
+import { KeyIcon } from '@heroicons/react/24/outline';
 import { ApiKeyDialog } from './ApiKeyDialog.client';
 
-interface HeaderActionButtonsProps {}
-
-export function HeaderActionButtons({}: HeaderActionButtonsProps) {
-  const showWorkbench = useStore(workbenchStore.showWorkbench);
-  const { showChat } = useStore(chatStore);
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  const canHideChat = showWorkbench || !showChat;
-
+export default function HeaderActionButtons() {
+  const [open, setOpen] = useState(false);
+  
   return (
-    <div className="flex">
-      <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden">
-        <Button
-          active={showChat}
-          disabled={!canHideChat}
-          onClick={() => {
-            if (canHideChat) {
-              chatStore.setKey('showChat', !showChat);
-            }
-          }}
-        >
-          <div className="i-bolt:chat text-sm" />
-        </Button>
-        <div className="w-[1px] bg-bolt-elements-borderColor" />
-        <Button
-          active={showWorkbench}
-          onClick={() => {
-            if (showWorkbench && !showChat) {
-              chatStore.setKey('showChat', true);
-            }
-
-            workbenchStore.showWorkbench.set(!showWorkbench);
-          }}
-        >
-          <div className="i-ph:code-bold" />
-        </Button>
-        <div className="w-[1px] bg-bolt-elements-borderColor" />
-        <Button onClick={() => setDialogOpen(true)}>
-          <div className="i-ph:key" />
-          <span>API Keys</span>
-        </Button>
-      </div>
-      <ApiKeyDialog open={dialogOpen} onOpenChange={setDialogOpen} />
-    </div>
-  );
-}
-
-interface ButtonProps {
-  active?: boolean;
-  disabled?: boolean;
-  children?: any;
-  onClick?: VoidFunction;
-}
-
-function Button({ active = false, disabled = false, children, onClick }: ButtonProps) {
-  return (
-    <button
-      className={classNames('flex items-center gap-1 p-1.5', {
-        'bg-bolt-elements-item-backgroundDefault hover:bg-bolt-elements-item-backgroundActive text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary':
-          !active,
-        'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': active && !disabled,
-        'bg-bolt-elements-item-backgroundDefault text-alpha-gray-20 dark:text-alpha-white-20 cursor-not-allowed':
-          disabled,
-      })}
-      onClick={onClick}
-    >
-      {children}
-    </button>
+    <>
+      <button
+        data-testid="api-keys-btn"
+        className="inline-flex items-center gap-1 text-sm font-medium"
+        onClick={() => setOpen(true)}
+      >
+        <KeyIcon className="w-4 h-4" />
+        <span className="hidden sm:inline">API Keys</span>
+      </button>
+      {open && <ApiKeyDialog open={open} onOpenChange={setOpen} />}
+    </>
   );
 }
