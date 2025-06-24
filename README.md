@@ -51,6 +51,12 @@ VITE_LOG_LEVEL=debug
 
 After starting the development server, open the site and click the **🔑 API Keys** button in the header to enter your keys.
 
+### Troubleshooting
+
+If you see an "Unhandled chunk type: response-metadata" error when chatting,
+update your dependencies and restart the dev server. This repository now filters
+those chunks so the chat endpoint streams normally.
+
 ## FAQs
 
 **Where do I sign up for a paid plan?**  

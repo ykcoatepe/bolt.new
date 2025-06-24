@@ -24,7 +24,7 @@ export type StreamingOptions = Omit<Parameters<typeof _streamText>[0], 'model'>;
 export function streamText(messages: Messages, env: Env, options?: StreamingOptions, override?: APIConfig) {
   const config = getAPIConfig(env, override);
 
-  return _streamText({
+  const result = _streamText({
     model: getModel(config.provider, config.apiKey),
     system: getSystemPrompt(),
     maxTokens: MAX_TOKENS,
@@ -32,4 +32,21 @@ export function streamText(messages: Messages, env: Env, options?: StreamingOpti
     messages: convertToCoreMessages(messages),
     ...options,
   });
+
+  // filter out `response-metadata` chunks emitted by newer LLM streams
+  if ((result as any).originalStream instanceof ReadableStream) {
+    (result as any).originalStream = (result as any).originalStream.pipeThrough(
+      new TransformStream({
+        transform(chunk, controller) {
+          if (chunk && (chunk as any).type === 'response-metadata') {
+            return;
+          }
+
+          controller.enqueue(chunk);
+        },
+      }),
+    );
+  }
+
+  return result;
 }
