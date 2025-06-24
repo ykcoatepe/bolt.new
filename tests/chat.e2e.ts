@@ -7,7 +7,7 @@ const streamBody = [
   'data: {"type":"finish","finishReason":"stop","usage":{"promptTokens":0,"completionTokens":0}}\n\n',
 ].join('');
 
-test('chat streams without vite overlay', async ({ page }) => {
+test('chat streams without vite overlay and receives reply', async ({ page }) => {
   await page.route('/api/chat', (route) => {
     route.fulfill({
       status: 200,
@@ -26,6 +26,9 @@ test('chat streams without vite overlay', async ({ page }) => {
 
   // wait for streaming to finish
   await page.waitForTimeout(500);
+
+  const reply = page.getByText('Hello');
+  await expect(reply).toBeVisible();
 
   const overlay = page.locator('#vite-error-overlay');
   await expect(overlay).toHaveCount(0);

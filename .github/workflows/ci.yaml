@@ -25,3 +25,14 @@ jobs:
 
       - name: Run tests
         run: pnpm run test
+
+      - name: Check @ai-sdk/openai version
+        run: |
+          VERSION=$(pnpm list @ai-sdk/openai | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+          export VERSION
+          node - <<'EOF'
+          const [major, minor, patch] = process.env.VERSION.split('.').map(Number);
+          if (!(major > 0 || (major === 0 && (minor > 7 || (minor === 7 && patch >= 6))))) {
+            throw new Error(`@ai-sdk/openai ${process.env.VERSION} < 0.7.6`);
+          }
+          EOF
