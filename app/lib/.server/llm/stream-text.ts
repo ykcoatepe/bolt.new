@@ -21,6 +21,17 @@ export type Messages = Message[];
 
 export type StreamingOptions = Omit<Parameters<typeof _streamText>[0], 'model'>;
 
+export function safeIterable<T extends { type: string }>(iterable: AsyncIterable<T>) {
+  async function* generator() {
+    for await (const chunk of iterable) {
+      if (chunk.type === 'response-metadata') continue;
+      if (!['delta', 'content', 'done'].includes(chunk.type)) continue;
+      yield chunk;
+    }
+  }
+  return generator();
+}
+
 export function streamText(messages: Messages, env: Env, options?: StreamingOptions, override?: APIConfig) {
   const config = getAPIConfig(env, override);
 
@@ -33,16 +44,15 @@ export function streamText(messages: Messages, env: Env, options?: StreamingOpti
     ...options,
   });
 
-  // filter out `response-metadata` chunks emitted by newer LLM streams
+  // filter out unknown chunk types emitted by newer LLM streams
   if ((result as any).originalStream instanceof ReadableStream) {
     (result as any).originalStream = (result as any).originalStream.pipeThrough(
       new TransformStream({
-        transform(chunk, controller) {
-          if (chunk && (chunk as any).type === 'response-metadata') {
-            return;
+        async transform(chunk, controller) {
+          async function* one() { yield chunk; }
+          for await (const filtered of safeIterable(one())) {
+            controller.enqueue(filtered);
           }
-
-          controller.enqueue(chunk);
         },
       }),
     );

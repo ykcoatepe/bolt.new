@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 // mock the ai package used by stream-text.ts
 const fakeChunks = [
   { type: 'response-metadata', foo: 'bar' },
-  { type: 'text-delta', textDelta: 'hi' },
+  { type: 'delta', text: 'hi' },
   {
     type: 'finish',
     finishReason: 'stop',
@@ -30,6 +30,7 @@ vi.mock('ai', async () => {
 });
 
 import { streamText } from './stream-text';
+import { safeIterable } from './stream-text';
 
 describe('streamText', () => {
   it('ignores response-metadata chunks', async () => {
@@ -49,6 +50,20 @@ describe('streamText', () => {
     }
 
     expect(received).not.toContainEqual(expect.objectContaining({ type: 'response-metadata' }));
-    expect(received).toContainEqual(expect.objectContaining({ type: 'text-delta', textDelta: 'hi' }));
+    expect(received).toContainEqual(expect.objectContaining({ type: 'delta', text: 'hi' }));
+  });
+
+  it('safeIterable filters unknown chunks', async () => {
+    async function* make() {
+      yield { type: 'response-metadata' } as any;
+      yield { type: 'delta', text: 'Hi' } as any;
+    }
+
+    const received: any[] = [];
+    for await (const chunk of safeIterable(make())) {
+      received.push(chunk);
+    }
+
+    expect(received).toEqual([{ type: 'delta', text: 'Hi' }]);
   });
 });
