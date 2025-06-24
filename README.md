@@ -31,7 +31,23 @@ Here are some tips to get the most out of Bolt.new:
 
 - **Scaffold the basics first, then add features**: Make sure the basic structure of your application is in place before diving into more advanced functionality. This helps Bolt understand the foundation of your project and ensure everything is wired up right before building out more advanced functionality.
 
-- **Batch simple instructions**: Save time by combining simple instructions into one message. For example, you can ask Bolt to change the color scheme, add mobile responsiveness, and restart the dev server, all in one go saving you time and reducing API credit consumption significantly.
+
+## Environment Variables
+
+Bolt requires at least one API provider key to run. Create a `.env.local` file in the project root and add your available keys:
+
+```
+# at least one key is required
+ANTHROPIC_API_KEY=XXX
+OPENAI_API_KEY=XXX
+GOOGLE_API_KEY=XXX
+```
+
+You can also set the optional logging level:
+
+```
+VITE_LOG_LEVEL=debug
+```
 
 ## FAQs
 

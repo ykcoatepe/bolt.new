@@ -3,6 +3,7 @@ import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
+import type { Provider } from '~/lib/stores/apiConfig';
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
@@ -10,6 +11,10 @@ export async function action(args: ActionFunctionArgs) {
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
   const { messages } = await request.json<{ messages: Messages }>();
+
+  const provider = request.headers.get('x-api-provider') as Provider | null;
+  const apiKey = request.headers.get('x-api-key');
+  const override = provider && apiKey ? { provider, apiKey } : undefined;
 
   const stream = new SwitchableStream();
 
@@ -32,13 +37,13 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         messages.push({ role: 'assistant', content });
         messages.push({ role: 'user', content: CONTINUE_PROMPT });
 
-        const result = await streamText(messages, context.cloudflare.env, options);
+        const result = await streamText(messages, context.cloudflare.env, options, override);
 
         return stream.switchSource(result.toAIStream());
       },
     };
 
-    const result = await streamText(messages, context.cloudflare.env, options);
+    const result = await streamText(messages, context.cloudflare.env, options, override);
 
     stream.switchSource(result.toAIStream());
 

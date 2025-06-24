@@ -56,10 +56,13 @@ git clone https://github.com/stackblitz/bolt.new.git
 pnpm install
 ```
 
-3. Create a `.env.local` file in the root directory and add your Anthropic API key:
+3. Create a `.env.local` file in the root directory and add at least one API provider key:
 
 ```
+# one or more of these keys is required
 ANTHROPIC_API_KEY=XXX
+OPENAI_API_KEY=XXX
+GOOGLE_API_KEY=XXX
 ```
 
 Optionally, you can set the debug level:
