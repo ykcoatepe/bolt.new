@@ -49,6 +49,8 @@ You can also set the optional logging level:
 VITE_LOG_LEVEL=debug
 ```
 
+After starting the development server, open the site and click the **🔑 API Keys** button in the header to enter your keys.
+
 ## FAQs
 
 **Where do I sign up for a paid plan?**  

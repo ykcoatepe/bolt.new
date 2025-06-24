@@ -44,6 +44,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         <div className="w-[1px] bg-bolt-elements-borderColor" />
         <Button onClick={() => setDialogOpen(true)}>
           <div className="i-ph:key" />
+          <span>API Keys</span>
         </Button>
       </div>
       <ApiKeyDialog open={dialogOpen} onOpenChange={setDialogOpen} />
@@ -61,7 +62,7 @@ interface ButtonProps {
 function Button({ active = false, disabled = false, children, onClick }: ButtonProps) {
   return (
     <button
-      className={classNames('flex items-center p-1.5', {
+      className={classNames('flex items-center gap-1 p-1.5', {
         'bg-bolt-elements-item-backgroundDefault hover:bg-bolt-elements-item-backgroundActive text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary':
           !active,
         'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': active && !disabled,
